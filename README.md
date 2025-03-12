@@ -1,5 +1,5 @@
-# quan_ly_thu_vien
-Bài tập nhóm giữa kỳ môn "Kĩ thuật phần mềm"
+# Bài tập nhóm giữa kỳ môn "Kĩ thuật phần mềm". Đề tài: Quản lý thư viện.
+# Mô tả: 
 # Danh sách website cá nhân: 
 # Báo cáo khảo sát hiện trạng:
 # Quy trình nghiệp vụ:
