@@ -1,38 +1,34 @@
-const Book = require('../models/book');
+const Sach = require('../models/book'); 
+const { Op } = require('sequelize');
 
-// Tìm kiếm sách theo tên, tác giả, thể loại (MaTL)
-async function searchBooks(criteria) {
-  const query = {};
+const addBook = async (bookData) => {
+  return await Sach.create(bookData);
+};
 
-  if (criteria.TenSach) {
-    query.TenSach = { $regex: criteria.TenSach, $options: 'i' };
+const getAllBooks = async () => {
+  return await Sach.findAll();
+};
+
+const searchBooks = async (query) => {
+  const where = {};
+
+  if (query.TenSach) {
+    where.TenSach = { [Op.like]: `%${query.TenSach}%` };
   }
 
-  if (criteria.TacGia) {
-    query.TacGia = { $regex: criteria.TacGia, $options: 'i' };
+  if (query.TacGia) {
+    where.TacGia = { [Op.like]: `%${query.TacGia}%` };
   }
 
-  if (criteria.MaTL) {
-    query.MaTL = Number(criteria.MaTL);
+  if (query.NamXuatBan) {
+    where.NamXuatBan = query.NamXuatBan;
   }
 
-  return await Book.find(query);
-}
-
-// Thêm sách mới
-async function addBook(bookData) {
-  const book = new Book(bookData);
-  await book.save();
-  return book;
-}
-
-// Hiển thị danh sách toàn bộ sách
-async function getAllBooks() {
-  return await Book.find();
-}
+  return await Sach.findAll({ where });
+};
 
 module.exports = {
-  searchBooks,
   addBook,
-  getAllBooks
+  getAllBooks,
+  searchBooks,
 };

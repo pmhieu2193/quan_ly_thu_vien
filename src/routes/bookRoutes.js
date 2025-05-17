@@ -1,26 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const Book = require('../models/book');
+const {
+  addBookController,
+  getAllBooksController,
+  searchBooksController,
+} = require('../controllers/bookController');
 
 // Thêm sách
-router.post('/', async (req, res) => {
-  try {
-    const book = await Book.create(req.body);
-    res.status(201).json(book);
-  } catch (err) {
-    console.error('Error adding book:', err);
-    res.status(500).json({ error: 'Failed to add book' });
-  }
-});
+router.post('/', addBookController);
 
-// Lấy danh sách sách
-router.get('/', async (req, res) => {
-  try {
-    const books = await Book.findAll();
-    res.json(books);
-  } catch (err) {
-    console.error('Error fetching books:', err);
-    res.status(500).json({ error: 'Failed to fetch books' });
+// Lấy danh sách sách hoặc tìm kiếm nếu có query
+router.get('/', (req, res) => {
+  if (Object.keys(req.query).length > 0) {
+    return searchBooksController(req, res);
+  } else {
+    return getAllBooksController(req, res);
   }
 });
 
