@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Trả Sách & Phạt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #FFC107;
+            --danger-color: #dc3545;
+            --success-color: #28a745;
+            --background-color: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--background-color);
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            background: white;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background-color: rgba(33, 150, 243, 0.05);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .btn-return {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-return:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-return.selected {
+            background-color: #1565C0;
+        }
+
+        .btn-fine {
+            background-color: var(--danger-color);
+            color: white;
+            margin-left: 8px;
+        }
+
+        .btn-fine:hover {
+            background-color: #c82333;
+        }
+
+        .btn-fine.selected {
+            background-color: #921925;
+        }
+
+        .action-buttons {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-start;
+        }
+
+        #confirmBtn {
+            background-color: var(--success-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        #confirmBtn:hover {
+            background-color: #218838;
+        }
+
+        #fineBtn {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        #fineBtn:hover {
+            background-color: #c82333;
+        }
+
+        .overdue {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+
+        .status-returned {
+            color: var(--success-color);
+            font-weight: 500;
+        }
+
+        .status-lost {
+            color: var(--danger-color);
+            font-weight: 500;
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quản lý Trả Sách và Phạt</h1>
+
+        <table id="traSachTable">
+            <thead>
+                <tr>
+                    <th>Mã Sách</th>
+                    <th>Tên Sách</th>
+                    <th>Tác Giả</th>
+                    <th>Năm XB</th>
+                    <th>Thể Loại</th>
+                    <th>Ngày Phải Trả</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Sách sẽ được render ở đây -->
+            </tbody>
+        </table>
+
+        <div class="action-buttons">
+            <button id="confirmBtn" class="btn" onclick="xacNhanTra()" style="display: none;">
+                Xác nhận yêu cầu trả
+            </button>
+            <button id="fineBtn" class="btn" onclick="xacNhanMatSach()" style="display: none;">
+                Xác nhận phạt
+            </button>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const maDG = urlParams.get('madg');
+
+    const selectedBooksToReturn = new Set();
+    const selectedBooksToFine = new Set();
+
+    window.onload = fetchSachDangMuon;
+
+    async function fetchSachDangMuon() {
+      try {
+        const response = await fetch(`/api/tra-sach?madg=${maDG}`);
+        const data = await response.json();
+        const tbody = document.querySelector("#traSachTable tbody");
+        tbody.innerHTML = "";
+
+        if (!data || data.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='7'>Độc giả không có sách đang mượn.</td></tr>";
+          return;
+        }
+
+        data.forEach(sach => {
+          const row = document.createElement("tr");
+          const actionCell = document.createElement("td");
+          const ngayPhaiTra = new Date(sach.NgayPhaiTra);
+          const ngayHienTai = new Date();
+          
+          // Format ngày và kiểm tra quá hạn
+          const isOverdue = ngayHienTai > ngayPhaiTra;
+          const formattedDate = formatDate(sach.NgayPhaiTra);
+          const ngayPhaiTraHtml = isOverdue 
+              ? `<span class="overdue">${formattedDate} <br>(Đã quá hạn)</span>`
+              : formattedDate;
+
+          // Xử lý hiển thị trạng thái trong cột hành động
+          if (sach.TrangThaiTra == 1) {
+            actionCell.innerHTML = `<span>Đã trả</span>`;
+          } else if (sach.TrangThaiTra == 2) {
+            actionCell.innerHTML = `<span style="color: red;">Sách mất</span>`;
+          } else {
+            const btnTra = document.createElement("button");
+            btnTra.textContent = "Trả sách";
+            btnTra.className = "btn btn-return";
+            btnTra.onclick = () => toggleTraSach(sach.MaSach, btnTra);
+            actionCell.appendChild(btnTra);
+
+            // Thêm nút mất sách nếu quá hạn
+            if (isOverdue) {
+              const btnPhat = document.createElement("button");
+              btnPhat.textContent = "Mất sách";
+              btnPhat.className = "btn btn-fine";
+              btnPhat.style.marginLeft = "5px";
+              btnPhat.onclick = () => togglePhatSach(sach.MaSach, btnPhat);
+              actionCell.appendChild(btnPhat);
+            }
+          }
+
+          row.innerHTML = `
+            <td>${sach.MaSach}</td>
+            <td>${sach.TenSach}</td>
+            <td>${sach.TacGia}</td>
+            <td>${sach.NamXuatBan}</td>
+            <td>${sach.TenTL}</td>
+            <td>${ngayPhaiTraHtml}</td>
+          `;
+          row.appendChild(actionCell);
+          tbody.appendChild(row);
+        });
+
+      } catch (error) {
+        alert("Lỗi khi tải dữ liệu sách đang mượn");
+        console.error(error);
+      }
+    }
+
+    // Thêm hàm format date
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    }
+
+    function toggleTraSach(maSach, btn) {
+      if (selectedBooksToReturn.has(maSach)) {
+        selectedBooksToReturn.delete(maSach);
+        btn.classList.remove("selected");
+        btn.textContent = "Trả sách";
+      } else {
+        selectedBooksToReturn.add(maSach);
+        btn.classList.add("selected");
+        btn.textContent = "Đã chọn";
+      }
+      updateButtonsVisibility();
+    }
+
+    function togglePhatSach(maSach, btn) {
+      if (selectedBooksToFine.has(maSach)) {
+        selectedBooksToFine.delete(maSach);
+        btn.classList.remove("selected");
+        btn.textContent = "Mất sách";
+      } else {
+        selectedBooksToFine.add(maSach);
+        btn.classList.add("selected");
+        btn.textContent = "Đã chọn";
+      }
+      updateButtonsVisibility();
+    }
+
+    function updateButtonsVisibility() {
+      document.getElementById("confirmBtn").style.display = selectedBooksToReturn.size > 0 ? "inline-block" : "none";
+      document.getElementById("fineBtn").style.display = selectedBooksToFine.size > 0 ? "inline-block" : "none";
+    }
+
+    function xacNhanTra() {
+    if (selectedBooksToReturn.size === 0) {
+        alert("Vui lòng chọn ít nhất một sách để trả!");
+        return;
+    }
+
+    const dsMaSach = Array.from(selectedBooksToReturn);
+    const madg = urlParams.get('madg');
+
+    if (!madg) {
+        alert("Không tìm thấy mã độc giả!");
+        return;
+    }
+
+    const confirmBtn = document.getElementById('confirmBtn');
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Đang xử lý...';
+
+    fetch('/xac-nhan-tra-sach', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            madg: madg,
+            danhSach: dsMaSach
+        })
+    })
+    .then(async response => {
+        const text = await response.text();
+        if (!response.ok) {
+            throw new Error(text || `HTTP error! status: ${response.status}`);
+        }
+        return text;
+    })
+    .then(result => {
+        alert(result);
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    })
+    .catch(error => {
+        console.error('Lỗi:', error);
+        alert(`Lỗi: ${error.message}`);
+    })
+    .finally(() => {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Xác nhận yêu cầu trả';
+    });
+}
+
+    function xacNhanMatSach() {
+      alert("Tạo phiếu phạt với mã sách: " + Array.from(selectedBooksToFine).join(", "));
+      // TODO: Gửi yêu cầu tạo phiếu phạt
+      if (selectedBooksToFine.size === 0) {
+        alert("Vui lòng chọn ít nhất một sách để trả!");
+        return;
+    }
+
+    const dsMaSach = Array.from(selectedBooksToFine);
+    const madg = urlParams.get('madg');
+
+    if (!madg) {
+        alert("Không tìm thấy mã độc giả!");
+        return;
+    }
+
+    const fineBtn = document.getElementById('fineBtn');
+    fineBtn.disabled = true;
+    fineBtn.textContent = 'Đang xử lý...';
+
+    fetch('/tao-phieu-phat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            madg: madg,
+            danhSach: dsMaSach
+        })
+    })
+    .then(async response => {
+        const text = await response.text();
+        if (!response.ok) {
+            throw new Error(text || `HTTP error! status: ${response.status}`);
+        }
+        return text;
+    })
+    .then(result => {
+        alert(result);
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    })
+    .catch(error => {
+        console.error('Lỗi:', error);
+        alert(`Lỗi: ${error.message}`);
+    })
+    .finally(() => {
+        fineBtn.disabled = false;
+        fineBtn.textContent = 'Xác nhận phiếu phạt';
+    });
+    }
+  </script>
+</body>
+</html>
