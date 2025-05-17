@@ -1,45 +1,20 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-const bookSchema = new mongoose.Schema({
-  MaSach: {
-    type: Number,
-    required: true,
-    unique: true,
+const Book = sequelize.define('Book', {
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
-  TenSach: {
-    type: String,
-    required: true,
+  author: {
+    type: DataTypes.STRING
   },
-  TacGia: {
-    type: String,
-    required: true,
-  },
-  NamXuatBan: {
-    type: Number,
-    required: true,
-  },
-  TriGia: {
-    type: Number,
-    required: true,
-  },
-  img: {
-    type: String,
-  },
-  NhaXuatBan: {
-    type: String,
-  },
-  MoTa: {
-    type: String,
-  },
-  MaTL: {
-    type: Number,  // Có thể thay bằng ObjectId nếu bạn dùng TheLoai trong MongoDB
-    required: true,
-  },
-  TinhTrang: {
-    type: String,
-    enum: ['con', 'dang muon', 'hong'],
-    default: 'con',
+  publishedYear: {
+    type: DataTypes.INTEGER
   }
+}, {
+  tableName: 'Books',
+  timestamps: false
 });
 
-module.exports = mongoose.model('Book', bookSchema);
+module.exports = Book;

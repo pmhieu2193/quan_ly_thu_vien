@@ -10,7 +10,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "be": "file:",
     "express": "^5.1.0",
-    "mongoose": "^8.15.0"
+    "mongoose": "^8.15.0",
+    "mysql2": "^3.14.1",
+    "sequelize": "^6.37.7",
+    "tedious": "^18.6.1"
   }
 }
