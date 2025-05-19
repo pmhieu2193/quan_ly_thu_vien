@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Hệ thống Quản lý Thư viện</title>
+    <style>
+        * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    text-align: center;
+}
+
+.login-container h1 {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    border-color: #4c84ff;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.btn {
+    flex: 1;
+    margin: 0 10px;
+    padding: 12px 15px;
+    background-color: #1877f2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #166fe5;
+}
+
+.btn:first-child {
+    margin-left: 0;
+}
+
+.btn:last-child {
+    margin-right: 0;
+}
+
+.error-message {
+    color: #e74c3c;
+    margin-top: 20px;
+    font-size: 14px;
+}
+    </style>
+
+</head>
+
+
+<body>
+    <div class="login-container">
+        <h1>Đăng nhập</h1>
+
+        <% if (typeof error !=='undefined' ) { %>
+            <div class="error-message">
+                <%= error %>
+            </div>
+            <% } %>
+
+                <form action="/auth/login" method="POST" id="loginForm">
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" placeholder="Email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="password" id="password" name="password" placeholder="Mật khẩu" required>
+                    </div>
+
+                    <input type="hidden" id="accountType" name="accountType" value="0">
+
+                    <div class="btn-container">
+                        <button type="button" class="btn" onclick="setAccountType(0)">Đăng nhập thủ thư</button>
+                        <button type="button" class="btn" onclick="setAccountType(1)">Đăng nhập quản lý</button>
+                    </div>
+                </form>
+    </div>
+
+    <script>
+        function setAccountType(type) {
+            document.getElementById('accountType').value = type;
+            document.getElementById('loginForm').submit();
+        }
+    </script>
+</body>
+
+</html>

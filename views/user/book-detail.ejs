@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết sách</title>
+    <style>
+        .book-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .book-image {
+            max-width: 300px;
+            height: auto;
+            margin: 20px 0;
+        }
+        .book-info {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .error-message {
+            color: red;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="book-container">
+        <% if (typeof error !== 'undefined') { %>
+            <div class="error-message">
+                <h2><%= error.message %></h2>
+                <button onclick="window.history.back()">Quay lại</button>
+            </div>
+        <% } else if (book) { %>
+            <div class="book-info">
+                <h1><%= book.TenSach %></h1>
+                <img src="<%= book.img || '/images/default-book.jpg' %>" alt="<%= book.TenSach %>" class="book-image">
+                <h3>Thông tin chi tiết:</h3>
+                <p><strong>Tác giả:</strong> <%= book.TacGia %></p>
+                <p><strong>Năm xuất bản:</strong> <%= book.NamXuatBan %></p>
+                <p><strong>Nhà xuất bản:</strong> <%= book.NhaXuatBan %></p>
+                <p><strong>Thể loại:</strong> <%= book.TheLoai ? book.TheLoai.TenTL : 'Chưa phân loại' %></p>
+                <p><strong>Trị giá:</strong> <%= book.TriGia.toLocaleString('vi-VN') %> VNĐ</p>
+                <p><strong>Mô tả:</strong> <%= book.MoTa || 'Chưa có mô tả' %></p>
+                <button onclick="window.history.back()">Quay lại</button>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chọn sách cho mượn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #FFC107;
+            --danger-color: #dc3545;
+            --success-color: #28a745;
+            --background-color: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--background-color);
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box i {
+            color: var(--primary-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background-color: rgba(33, 150, 243, 0.05);
+        }
+
+        input[type="text"] {
+            width: 120px;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .btn-confirm {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+            margin-top: 2rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .complete-section {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .action-cell {
+            width: 100px;
+        }
+
+        .error {
+            border-color: var(--danger-color) !important;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Chọn sách cho mượn</h2>
+
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i>
+            <span>Số sách mượn tối đa: <strong>
+                    <%= regulation.SoLuongSachMuonToiDa %>
+                </strong> cuốn</span>
+            <span>Số ngày mượn tối đa: <strong id="soNgayMuon">
+                    <%= regulation.SoNgayMuonToiDa %>
+                </strong> ngày</span>
+        </div>
+
+        <table id="sachTable">
+            <thead>
+                <tr>
+                    <th>Mã sách</th>
+                    <th>Tên sách</th>
+                    <th>Tác giả</th>
+                    <th>Năm XB</th>
+                    <th>Thể loại</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for(let i=0; i < regulation.SoLuongSachMuonToiDa; i++) { %>
+                    <tr>
+                        <td>
+                            <input type="text" placeholder="Nhập mã sách" class="book-input">
+                            <button class="btn btn-confirm" onclick="xacNhanSach(this)">Xác nhận</button>
+                        </td>
+                        <td class="ten"></td>
+                        <td class="tacgia"></td>
+                        <td class="nam"></td>
+                        <td class="theloai"></td>
+                        <td class="action"></td>
+                    </tr>
+                    <% } %>
+            </tbody>
+        </table>
+
+        <div class="complete-section">
+            <button id="hoanTat" class="btn btn-success" onclick="hoanTat()" style="display: none;">
+                Hoàn tất mượn sách
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const sachDaThem = new Set();
+        const maDG = '<%= maDG %>';
+
+        async function xacNhanSach(btn) {
+            try {
+                const row = btn.closest("tr");
+                const maInput = row.querySelector(".book-input");
+                const ma = maInput.value.trim();
+
+                if (!ma) {
+                    alert("Vui lòng nhập mã sách.");
+                    return;
+                }
+
+                if (sachDaThem.has(ma)) {
+                    alert("Sách đã được thêm rồi!");
+                    return;
+                }
+
+                const res = await fetch(`/librarian/book_borrow_return/book/${ma}`);
+                if (!res.ok) {
+                    throw new Error('Không tìm thấy sách');
+                }
+                const data = await res.json();
+
+                if (!data || !data.MaSach) {
+                    alert("Mã sách không hợp lệ.");
+                    maInput.style.border = "1px solid red";
+                    return;
+                }
+
+                // Update row with book info
+                row.querySelector(".ten").textContent = data.TenSach;
+                row.querySelector(".tacgia").textContent = data.TacGia;
+                row.querySelector(".nam").textContent = data.NamXuatBan;
+                row.querySelector(".theloai").textContent = data.TheLoai?.TenTL || '';
+
+                sachDaThem.add(ma);
+
+                // Add delete button
+                row.querySelector(".action").innerHTML = `
+                    <button class="btn btn-delete" onclick="xoaDong(this, '${ma}')">Xoá</button>
+                `;
+
+                // Show complete button if books added
+                document.getElementById("hoanTat").style.display = sachDaThem.size > 0 ? "inline-block" : "none";
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi tìm sách');
+            }
+        }
+
+        function xoaDong(btn, ma) {
+            const row = btn.closest("tr");
+            row.querySelector(".book-input").value = "";
+            row.querySelector(".ten").textContent = "";
+            row.querySelector(".tacgia").textContent = "";
+            row.querySelector(".nam").textContent = "";
+            row.querySelector(".theloai").textContent = "";
+            row.querySelector(".action").innerHTML = "";
+            sachDaThem.delete(ma);
+
+            // Hide complete button if no books
+            document.getElementById("hoanTat").style.display = sachDaThem.size > 0 ? "inline-block" : "none";
+        }
+
+        async function hoanTat() {
+            try {
+                const danhSachSach = Array.from(sachDaThem);
+                if (danhSachSach.length === 0) {
+                    alert('Vui lòng chọn ít nhất 1 cuốn sách');
+                    return;
+                }
+
+                const response = await fetch('/librarian/book_borrow_return', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        maDG: parseInt(maDG),
+                        danhSachSach: danhSachSach
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Lỗi khi mượn sách');
+                }
+
+                alert(result.message);
+                window.location.href = '/librarian/manage_book';
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert(error.message || 'Có lỗi xảy ra khi mượn sách');
+            }
+        }
+    </script>
+</body>
+
+</html>

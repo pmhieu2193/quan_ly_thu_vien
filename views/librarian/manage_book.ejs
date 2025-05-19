@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Quản lý Độc Giả</title>
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --success-color: #2ecc71;
+      --background-color: #f5f6fa;
+      --text-color: #2c3e50;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 1.5rem 0;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 500;
+    }
+
+    .search-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+
+    input[type="text"] {
+      padding: 0.8rem 1rem;
+      width: 400px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    }
+
+    .search-btn {
+      padding: 0.8rem 1.5rem;
+      background-color: var(--secondary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .search-btn:hover {
+      background-color: #2980b9;
+      transform: translateY(-1px);
+    }
+
+    .table-container {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 500;
+    }
+
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .action-button {
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .borrow-button {
+      background-color: var(--secondary-color);
+    }
+
+    .borrow-button:hover {
+      background-color: #2980b9;
+    }
+
+    .return-button {
+      background-color: var(--success-color);
+    }
+
+    .return-button:hover {
+      background-color: #27ae60;
+    }
+
+    .fine-button {
+      background-color: #dc3545;
+      margin-top: 8px;
+      /* Increased margin for better spacing */
+    }
+
+    .fine-button:hover {
+      background-color: #c82333;
+    }
+
+    .status-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      display: inline-block;
+    }
+
+    .status-available {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-borrowed {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="search-container">
+      <form method="GET" action="/librarian/manage_book">
+        <input type="text" name="name" value="<%= keyword %>" placeholder="Nhập họ tên độc giả..." class="form-control">
+        <button type="submit" class="search-btn">
+          <i class="fas fa-search"></i> Tìm kiếm
+        </button>
+      </form>
+    </div>
+
+    <div class="table-container">
+      <table id="docgiaTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>Loại</th>
+            <th>Tổng nợ</th>
+            <th>Ngày lập thẻ</th>
+            <th>Ngày hết hạn</th>
+            <th>Tình trạng mượn</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (readers.length===0) { %>
+            <tr>
+              <td colspan="9">Không tìm thấy độc giả nào.</td>
+            </tr>
+            <% } else { %>
+              <% readers.forEach(dg=> { %>
+                <tr>
+                  <td>
+                    <%= dg.MaDG %>
+                  </td>
+                  <td>
+                    <%= dg.HoTen %>
+                  </td>
+                  <td>
+                    <%= dg.Email %>
+                  </td>
+                  <td>
+                    <%= dg.Loai %>
+                  </td>
+                  <td>
+                    <%= dg.TongNo %>
+                  </td>
+                  <td><%= dg.NgayLapThe || 'N/A' %></td>
+                  <td><%= dg.NgayHetHan || 'N/A' %></td>
+                  <td>
+                    <span class="status-badge <%= dg.TinhTrangMuon === 1 ? 'status-borrowed' : 'status-available' %>">
+                      <%= dg.TinhTrangMuon===1 ? 'Đang mượn' : 'Chưa mượn' %>
+                    </span>
+                  </td>
+                  <td>
+                    <% if (dg.TinhTrangMuon === 0) { %>
+                      <a href="/librarian/book_borrow_return/<%= dg.MaDG %>" class="action-button borrow-button">Cho mượn</a>
+                      <% } else { %>
+                        <a href="/librarian/return/<%= dg.MaDG %>" class="action-button return-button">Trả sách</a>
+                        <% } %>
+                          <% if (dg.TongNo> 0) { %>
+                            <a href="/librarian/fine/<%= dg.MaDG %>" class="action-button fine-button">Tạo phiếu
+                              phạt</a>
+                            <% } %>
+                  </td>
+                </tr>
+                <% }) %>
+                  <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+
+</html>

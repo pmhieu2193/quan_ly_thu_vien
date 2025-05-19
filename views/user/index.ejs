@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Black Library - Thư viện sách</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    /* Header */
+    .header {
+      background-color: white;
+      padding: 10px 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-bottom: 1px solid #ddd;
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+    }
+
+    .nav-menu a {
+      text-decoration: none;
+      color: #666;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-menu a:hover {
+      color: #333;
+    }
+
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .search-input {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: 200px;
+    }
+
+    .search-btn {
+      padding: 8px 16px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .search-btn:hover {
+      background-color: #555;
+    }
+
+    .user-icons {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .icon {
+      cursor: pointer;
+      color: #666;
+      font-size: 18px;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      position: relative;
+      height: 400px;
+      background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/api/placeholder/1200/400');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+    }
+
+    .hero-content h1 {
+      font-size: 4rem;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      letter-spacing: 3px;
+    }
+
+    .gear-icon {
+      display: inline-block;
+      margin-right: 20px;
+      font-size: 3rem;
+    }
+
+    /* Books Section */
+    .books-section {
+      padding: 40px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      margin-bottom: 30px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    .book-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+
+    .book-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .book-cover {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+    }
+
+    .book-status {
+      position: relative;
+      background-color: #28a745;
+      color: white;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: bold;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      border-radius: 4px;
+    }
+
+    .book-card .book-cover-container {
+      position: relative;
+    }
+
+    .book-info {
+      padding: 15px;
+    }
+
+    .book-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .book-description {
+      font-size: 0.9rem;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .search-results {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .book-card {
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .book-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="nav-container">
+      <div class="logo">⚙️</div>
+
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="#home">• Trang Chủ</a></li>
+          <li><a href="#books">Nội Quy</a></li>
+          <li><a href="#guide">Hướng Dẫn Sử Dụng</a></li>
+          <li><a href="#favorites">Danh Sách Yêu Thích</a></li>
+        </ul>
+      </nav>
+
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Tìm Tên Sách" id="searchInput">
+        <button class="search-btn" onclick="searchBooks()">Tìm Kiếm</button>
+        <div class="user-icons">
+          <span class="icon">👤</span>
+          <span class="icon">🛒</span>
+          <span class="icon">🕐</span>
+          <span class="icon">🛍️</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1><span class="gear-icon">⚙️</span>BLACK LIBRARY</h1>
+    </div>
+  </section>
+
+  <!-- Books Section -->
+  <h2 class="section-title">Sách Mới ⚙️</h2>
+  <section id="searchResults" class="search-results">
+    <% if (books && books.length> 0) { %>
+      <% books.forEach(book=> { %>
+        <div class="book-card">
+          <a href="/book/<%= book.MaSach %>">
+            <img src="<%= book.img || '/images/default-book.jpg' %>" class="book-img">
+            <h3><%= book.TenSach %></h3>
+            <p>Tác giả: <%= book.TacGia %></p>
+            <p>Thể loại: <%= book.TheLoai ? book.TheLoai.TenTL : 'N/A' %></p>
+          </a>
+        </div>
+        <% }) %>
+          <% } %>
+  </section>
+
+  <script>
+    async function searchBooks() {
+      const searchInput = document.getElementById('searchInput').value;
+      if (!searchInput.trim()) return;
+
+      try {
+        const response = await fetch(`/api/books/search?name=${encodeURIComponent(searchInput)}`);
+        if (!response.ok) throw new Error('Search failed');
+
+        const books = await response.json();
+        const searchResults = document.getElementById('searchResults');
+
+        if (!Array.isArray(books)) {
+          console.error('Invalid response format');
+          return;
+        }
+
+        searchResults.innerHTML = books.map(book => `
+            <div class="book-card">
+                <a href="/book/${book.MaSach}">
+                    <img src="${book.img || '/images/default-book.jpg'}" class="book-img">
+                    <h3>${book.TenSach}</h3>
+                    <p>Tác giả: ${book.TacGia}</p>
+                    <p>Thể loại: ${book.TheLoai ? book.TheLoai.TenTL : 'N/A'}</p>
+                </a>
+            </div>
+        `).join('');
+      } catch (error) {
+        console.error('Search error:', error);
+      }
+    }
+
+    document.getElementById('searchInput').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        searchBooks();
+      }
+    });
+  </script>
+</body>
+
+</html>
