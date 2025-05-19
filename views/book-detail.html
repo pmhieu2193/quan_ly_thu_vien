@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Thông tin sách</title>
+</head>
+<body>
+  <div id="book-detail"></div>
+
+  <script>
+    const bookId = window.location.pathname.split('/').pop();
+    fetch(`/api/books/${bookId}`)
+      .then(res => res.json())
+      .then(book => {
+        document.getElementById('book-detail').innerHTML = `
+          <h2>${book.TenSach}</h2>
+          <p>Tác giả: ${book.TacGia}</p>
+          <p>Năm xuất bản: ${book.NamXuatBan}</p>
+          <p>Trị giá: ${book.TriGia} VNĐ</p>
+          <img src="${book.img}" width="150" alt="Book Image"/>
+          <p>Mô tả: ${book.MoTa}</p>
+        `;
+      });
+  </script>
+</body>
+</html>
