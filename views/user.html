@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Quản lý Độc Giả</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --success-color: #2ecc71;
+      --background-color: #f5f6fa;
+      --text-color: #2c3e50;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 1.5rem 0;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 500;
+    }
+
+    .search-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+
+    input[type="text"] {
+      padding: 0.8rem 1rem;
+      width: 400px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    }
+
+    .search-btn {
+      padding: 0.8rem 1.5rem;
+      background-color: var(--secondary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .search-btn:hover {
+      background-color: #2980b9;
+      transform: translateY(-1px);
+    }
+
+    .table-container {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 500;
+    }
+
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .action-button {
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .borrow-button {
+      background-color: var(--secondary-color);
+    }
+
+    .borrow-button:hover {
+      background-color: #2980b9;
+    }
+
+    .return-button {
+      background-color: var(--success-color);
+    }
+
+    .return-button:hover {
+      background-color: #27ae60;
+    }
+
+    .fine-button {
+        background-color: #dc3545;
+        margin-top: 8px; /* Increased margin for better spacing */
+    }
+
+    .fine-button:hover {
+        background-color: #c82333;
+    }
+
+    .status-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      display: inline-block;
+    }
+
+    .status-available {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-borrowed {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Quản lý Độc Giả</h1>
+  </div>
+
+  <div class="container">
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Nhập họ tên độc giả...">
+      <button class="search-btn" onclick="searchDocGia()">Tìm kiếm</button>
+    </div>
+
+    <div class="table-container">
+      <table id="docgiaTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>Loại</th>
+            <th>Tổng nợ</th>
+            <th>Ngày lập thẻ</th>
+            <th>Ngày hết hạn</th>
+            <th>Tình trạng mượn</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Kết quả sẽ được render ở đây -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    window.onload = () => {
+      searchDocGia(); // gọi khi trang vừa tải
+    };
+
+    async function searchDocGia() {
+      const keyword = document.getElementById("searchInput").value.trim();
+      const response = await fetch(`/search?name=${encodeURIComponent(keyword)}`);
+      const data = await response.json();
+
+      const tbody = document.querySelector("#docgiaTable tbody");
+      tbody.innerHTML = "";
+
+      if (data.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='9'>Không tìm thấy độc giả nào.</td></tr>";
+        return;
+      }
+
+      // Cập nhật phần render dữ liệu
+      data.forEach(dg => {
+        const tinhTrangMuon = dg.TinhTrangMuon === 1 
+          ? '<span class="status-badge status-available">Đang mượn</span>' 
+          : '<span class="status-badge status-borrowed">Chưa mượn</span>';
+
+        let hanhDong = "";
+        if (dg.TinhTrangMuon === 0) {
+          hanhDong = `<button class="action-button borrow-button" onclick="muonSach(${dg.MaDG})">Cho mượn</button>`;
+        } else {
+          hanhDong = `<button class="action-button return-button" onclick="traSach(${dg.MaDG})">Trả sách</button>`;
+        }
+
+        // Add fine button if TongNo > 0
+        if (dg.TongNo > 0) {
+            hanhDong += `<button class="action-button fine-button" onclick="taoPhieuPhat(${dg.MaDG})">Tạo phiếu phạt</button>`;
+        }
+
+        const row = `
+          <tr>
+            <td>${dg.MaDG}</td>
+            <td>${dg.HoTen}</td>
+            <td>${dg.Email}</td>
+            <td>${dg.Loai}</td>
+            <td>${dg.TongNo}</td>
+            <td>${dg.NgayLapThe}</td>
+            <td>${dg.NgayHetHan}</td>
+            <td>${tinhTrangMuon}</td>
+            <td>${hanhDong}</td>
+          </tr>
+        `;
+        tbody.insertAdjacentHTML("beforeend", row);
+      });
+    }
+
+    function muonSach(maDG) {
+      window.location.href = `/chon-sach.html?madg=${maDG}`;
+    }
+
+    function traSach(maDG) {
+      window.location.href = `/tra-sach.html?madg=${maDG}`; // Bạn cần xây dựng tra-sach.html và backend tương ứng
+    }
+
+    function taoPhieuPhat(maDG) {
+        window.location.href = `/tao-phieu-phat.html?madg=${maDG}`;
+    }
+  </script>
+</body>
+</html>
