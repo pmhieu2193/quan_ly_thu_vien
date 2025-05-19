@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Hệ thống Quản lý Thư viện</title>
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+
+<body>
+    <div class="login-container">
+        <h1>Đăng nhập</h1>
+
+        <% if (typeof error !=='undefined' ) { %>
+            <div class="error-message">
+                <%= error %>
+            </div>
+            <% } %>
+
+                <form action="/auth/login" method="POST" id="loginForm">
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" placeholder="Email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="password" id="password" name="password" placeholder="Mật khẩu" required>
+                    </div>
+
+                    <input type="hidden" id="accountType" name="accountType" value="0">
+
+                    <div class="btn-container">
+                        <button type="button" class="btn" onclick="setAccountType(0)">Đăng nhập thủ thư</button>
+                        <button type="button" class="btn" onclick="setAccountType(1)">Đăng nhập quản lý</button>
+                    </div>
+                </form>
+    </div>
+
+    <script>
+        function setAccountType(type) {
+            document.getElementById('accountType').value = type;
+            document.getElementById('loginForm').submit();
+        }
+    </script>
+</body>
+
+</html>
